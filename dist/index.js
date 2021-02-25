@@ -1217,13 +1217,17 @@ function run() {
             }
         }
         catch (error) {
-            core_1.setFailed(error.message);
-            throw error;
+            if (error instanceof Error) {
+                core_1.setFailed(error.message);
+            }
+            else {
+                throw error;
+            }
         }
     });
 }
 exports.run = run;
-run();
+void run();
 
 
 /***/ }),
@@ -1533,9 +1537,7 @@ function formatOnlyChangedFiles(onlyChangedFiles) {
 }
 function format(options) {
     return __awaiter(this, void 0, void 0, function* () {
-        const execOptions = {
-            ignoreReturnCode: true,
-        };
+        const execOptions = { ignoreReturnCode: true };
         const dotnetFormatOptions = ["format", "--check"];
         if (options.dryRun) {
             dotnetFormatOptions.push("--dry-run");
@@ -5273,29 +5275,6 @@ exports.getPullRequestFiles = void 0;
 const path_1 = __webpack_require__(622);
 const core_1 = __webpack_require__(470);
 const github_1 = __webpack_require__(469);
-var fileStatus;
-(function (fileStatus) {
-    /**
-     * The file was added.
-     */
-    fileStatus["added"] = "added";
-    /**
-     * The mode of the file was changed or there are unknown changes because the diff was truncated.
-     */
-    fileStatus["changed"] = "changed";
-    /**
-     * The content of the file was modified.
-     */
-    fileStatus["modified"] = "modified";
-    /**
-     * The file was removed.
-     */
-    fileStatus["removed"] = "removed";
-    /**
-     * The file was renamed.
-     */
-    fileStatus["renamed"] = "renamed";
-})(fileStatus || (fileStatus = {}));
 const fileTypes = [
     ".cs",
     ".vb",
@@ -5304,15 +5283,14 @@ function getPullRequestFiles() {
     return __awaiter(this, void 0, void 0, function* () {
         const token = core_1.getInput("repo-token", { required: true });
         const githubClient = github_1.getOctokit(token);
-        const pullNumber = (github_1.context.payload.issue || github_1.context.payload.pull_request || github_1.context.payload).number;
-        if (!pullNumber) {
+        if (!github_1.context.issue.number) {
             throw Error("Unable to get pull request number from action event");
         }
         const files = yield githubClient.paginate(githubClient.pulls.listFiles, Object.assign(Object.assign({}, github_1.context.repo), { pull_number: github_1.context.issue.number }));
         return files
-            .filter(file => file.status !== fileStatus.removed)
-            .filter(file => fileTypes.includes(path_1.extname(file.filename)))
-            .map(file => file.filename);
+            .filter((file) => file.status !== "removed" /* Removed */)
+            .filter((file) => fileTypes.includes(path_1.extname(file.filename)))
+            .map((file) => file.filename);
     });
 }
 exports.getPullRequestFiles = getPullRequestFiles;
