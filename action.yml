@@ -22,6 +22,10 @@ inputs:
     description: "Only changed files in the current pull request should be formatted"
     required: false
 
+  workspace:
+    description: "workspace folder to run linter in"
+    required: false
+
   fail-fast:
     description: "The job should fail if there's a formatting error"
     required: false

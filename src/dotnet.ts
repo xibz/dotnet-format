@@ -34,6 +34,10 @@ export async function format(options: FormatOptions): Promise<boolean> {
   const execOptions: ExecOptions = { ignoreReturnCode: true };
 
   const dotnetFormatOptions = ["format", "--check"];
+  const workspace = getInput("workspace");
+  if (workspace != null) {
+    dotnetFormatOptions.push("--folder", workspace);
+  }
 
   if (options.dryRun) {
     dotnetFormatOptions.push("--dry-run");
